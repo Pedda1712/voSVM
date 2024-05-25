@@ -6,6 +6,7 @@ Solver (`Solver/generated.py`) generated using [GENO](https://www.geno-project.o
 Installation:
 ```bash
 python -m venv .
+. bin/activate
 pip install -r requirements.txt
 ```
 Running:
