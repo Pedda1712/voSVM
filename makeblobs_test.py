@@ -3,19 +3,26 @@ import numpy as np
 from sklearn.datasets import make_blobs
 from Model import voSVM
 
+def lin_kernel(X1, X2):
+        return X1 @ X2.T
+
+def rbf_kernel(X1, X2, gamma=1):
+        sqdist = np.sum(X1 ** 2, 1).reshape(-1, 1) + np.sum(X2 ** 2, 1) - 2 * np.dot(X1, X2.T)
+        return np.exp(-gamma * sqdist)
+
 # Example Data:
-n_centers = 3
-n_features = 2
+use_kernel = rbf_kernel
+n_classes = 5
+n_dimensions = 2
 n_samples = 400
 X, labels = make_blobs(n_samples=n_samples,
-                       centers=n_centers,
-                       n_features=n_features,
+                       centers=n_classes,
+                       n_features=n_dimensions,
                        random_state=0)
 
-def dotSimX(x1, x2): # euclid distance
-	return x1.T @ x2
-
-model = voSVM(X, X @ X.T, labels, dotSimX)
+# linear kernel
+K = use_kernel(X, X)
+model = voSVM(X, K, labels)
 
 xs = X[:, 0]
 ys = X[:, 1]
@@ -24,25 +31,20 @@ ys = X[:, 1]
 fig, ax = plt.subplots()
 ax.scatter(xs, ys, c=labels)
 
-svinds = model.getSVIndices()
-for ind in svinds: # mark support vectors
-	ax.scatter(xs[ind], ys[ind], c='r', marker='x')
-
+svs = model.getSVs()
+ax.scatter(svs[:,0], svs[:,1], c="r", marker="x")
 
 # training accuracy
-right = 0
-for i in range(0, n_samples):
-	myX = X[i]
-	myL = labels[i]
-	pred = model.decide(myX)
-	if pred == myL:
-	 	right = right + 1
+Ktrain = use_kernel(X, svs)
+plabels = model.predict(Ktrain)
+right = np.sum(np.equal(labels, plabels))
+
 print('got ', right, ' of ', n_samples, ' training accuracy = ', right/n_samples)
 
 
-if n_features != 2:
-	plt.show()
-	exit()
+if n_dimensions != 2:
+        plt.show()
+        exit()
 
 # visualize Separation by testing points on a grid (if model is for 2D-Data)
 maxX = max(xs)
@@ -50,18 +52,16 @@ minX = min(xs)
 maxY = max(ys)
 minY = min(ys)
 
-fig, ax = plt.subplots()
-
-nXs = []
-nYs = []
-nLs = []
-
 res = 50
-for mx in np.linspace(minX, maxX, res):
-	for my in np.linspace(minY, maxY, res):
-		pred = model.decide(np.array([mx, my]))
-		nXs.append(mx)
-		nYs.append(my)
-		nLs.append(pred)
-ax.scatter(nXs, nYs, c=nLs)
+
+vX, vY = np.meshgrid(np.linspace(minX, maxX, res), np.linspace(minY, maxY, res))
+vP = np.stack((vX.flatten(), vY.flatten()), axis=1)
+
+Ktest = use_kernel(vP, svs)
+labels = model.predict(Ktest)
+
+fig, ax = plt.subplots()
+ax.scatter(vP[:,0], vP[:,1], c=labels)
 plt.show()
+
+# calculate similarity between test points and SVs
