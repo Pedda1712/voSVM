@@ -12,9 +12,9 @@ def rbf_kernel(X1, X2, gamma=1):
 
 # Example Data:
 use_kernel = rbf_kernel
-n_classes = 5
+n_classes = 10
 n_dimensions = 2
-n_samples = 400
+n_samples = 1000
 X, labels = make_blobs(n_samples=n_samples,
                        centers=n_classes,
                        n_features=n_dimensions,

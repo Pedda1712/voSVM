@@ -40,7 +40,7 @@ class voSVM:
                 for ind in range(0, self.n_samples):
                         if self.a[ind] > 0.0:
                                 self.svinds.append(ind)
-
+                
                 # these are the submatrices of Y, a, K belonging to the support vectors
                 self.svY = self.Y[:, self.svinds]
                 self.svA = np.repeat(self.a[self.svinds].reshape(1, -1), self.Y.shape[0], axis=0) # stacked alphas for element-wise mul
