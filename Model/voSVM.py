@@ -50,15 +50,13 @@ class voSVM:
                 # average the biases of all support vectors for robustness
                 self.b = np.mean(self.b, axis=1)
 
-
         # return support vector indices
         def getSVIndices(self):
                 return self.svinds
         
-
         # ktest: row index = test index, column index = sv index
         def predict(self, ktest):
-                arow = self.svA[0, :].reshape(1, -1)
+                arow = self.svA[0, :].reshape(1, -1) # alphas as row vector
                 scores = []
                 for t in range(0, self.noLabels):
                         yt = mkVecLabel(t, self.noLabels)
