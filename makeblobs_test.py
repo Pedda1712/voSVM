@@ -22,7 +22,7 @@ X, labels = make_blobs(n_samples=n_samples,
 
 # linear kernel
 K = use_kernel(X, X)
-model = voSVM(X, K, labels)
+model = voSVM(K, labels)
 
 xs = X[:, 0]
 ys = X[:, 1]
@@ -31,11 +31,11 @@ ys = X[:, 1]
 fig, ax = plt.subplots()
 ax.scatter(xs, ys, c=labels)
 
-svs = model.getSVs()
-ax.scatter(svs[:,0], svs[:,1], c="r", marker="x")
+svs = model.getSVIndices()
+ax.scatter(X[svs,0], X[svs,1], c="r", marker="x")
 
 # training accuracy
-Ktrain = use_kernel(X, svs)
+Ktrain = use_kernel(X, X[svs])
 plabels = model.predict(Ktrain)
 right = np.sum(np.equal(labels, plabels))
 
@@ -57,7 +57,7 @@ res = 50
 vX, vY = np.meshgrid(np.linspace(minX, maxX, res), np.linspace(minY, maxY, res))
 vP = np.stack((vX.flatten(), vY.flatten()), axis=1)
 
-Ktest = use_kernel(vP, svs)
+Ktest = use_kernel(vP, X[svs])
 labels = model.predict(Ktest)
 
 fig, ax = plt.subplots()

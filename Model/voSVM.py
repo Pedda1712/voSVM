@@ -16,9 +16,8 @@ class voSVM:
         # X : data
         # K : data similarity matrix
         # labels : classification
-        def __init__(self, X, K, labels):
+        def __init__(self, K, labels):
                 self.noLabels = np.max(labels)+1
-                self.X = X
                 self.labels = labels
 
                 # construct label vector matrix
@@ -29,12 +28,12 @@ class voSVM:
                                 self.Y = vec
                         else:
                                 self.Y = np.append(self.Y, vec, axis=1)
-		# solve
+		        # solve
                 self.kernel = K
                 print("start solving")
                 self.result, self.a = solve(self.kernel, self.Y, 9, np)
 
-		# get indices of SVs
+		        # get indices of SVs
                 self.svinds = []
                 self.n_samples = self.labels.shape[0]
 
@@ -46,15 +45,15 @@ class voSVM:
                 self.svY = self.Y[:, self.svinds]
                 self.svA = np.repeat(self.a[self.svinds].reshape(1, -1), self.Y.shape[0], axis=0) # stacked alphas for element-wise mul
                 self.svK = self.kernel[:, self.svinds][self.svinds, :]
-                self.svX = self.X[self.svinds, :]
 
                 self.b = (-1 * self.svY) + (np.multiply(self.svA, self.svY) @ self.svK)
                 # average the biases of all support vectors for robustness
                 self.b = np.mean(self.b, axis=1)
 
 
-        def getSVs(self):
-                return self.svX
+        # return support vector indices
+        def getSVIndices(self):
+                return self.svinds
         
 
         # ktest: row index = test index, column index = sv index
