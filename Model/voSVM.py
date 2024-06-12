@@ -16,7 +16,7 @@ class voSVM:
         # K : data similarity matrix
         # labels : classification
         # max_iter : max inner iterations
-        def __init__(self, K, labels, max_iter=200):
+        def __init__(self, K, labels, max_iter=200, on_gpu=False):
                 self.noLabels = np.max(labels)+1
                 self.labels = labels
 
@@ -32,7 +32,17 @@ class voSVM:
                 self.Ky = self.Y.T @ self.Y
                 self.kernel = K
                 print("start solving")
-                self.result, self.a = solve(self.kernel, self.Ky, self.Y, 9, np, max_iter=max_iter)
+                if not on_gpu:
+                        self.result, self.a = solve(self.kernel, self.Ky, self.Y, 9, np, max_iter=max_iter)
+                else:
+                        # move data to gpu and solve there
+                        import cupy as cp
+                        ckernel = cp.asarray(self.kernel)
+                        cKy = cp.asarray(self.Ky)
+                        cY = cp.asarray(self.Y)
+                        cresult, ca = solve(ckernel, cKy, cY, 9, cp, max_iter=max_iter)
+                        self.result = cp.asnumpy(cresult)
+                        self.a = cp.asnumpy(ca)
 
                 # get indices of SVs
                 self.svinds = []
