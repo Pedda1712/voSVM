@@ -13,10 +13,10 @@ def mkVecLabel(cl, len):
         return vec
 
 class voSVM:
-        # X : data
         # K : data similarity matrix
         # labels : classification
-        def __init__(self, K, labels):
+        # max_iter : max inner iterations
+        def __init__(self, K, labels, max_iter=200):
                 self.noLabels = np.max(labels)+1
                 self.labels = labels
 
@@ -28,12 +28,13 @@ class voSVM:
                                 self.Y = vec
                         else:
                                 self.Y = np.append(self.Y, vec, axis=1)
-		        # solve
+		# solve
+                self.Ky = self.Y.T @ self.Y
                 self.kernel = K
                 print("start solving")
-                self.result, self.a = solve(self.kernel, self.Y, 9, np)
+                self.result, self.a = solve(self.kernel, self.Ky, self.Y, 9, np, max_iter=max_iter)
 
-		        # get indices of SVs
+                # get indices of SVs
                 self.svinds = []
                 self.n_samples = self.labels.shape[0]
 

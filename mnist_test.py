@@ -24,7 +24,7 @@ X, labels = fetch_openml(data_id=554, as_frame=False, return_X_y=True, parser='l
 X = (X / 128.0)-1
 labels = labels.astype(int)
 
-X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.20, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.8, random_state=0)
 
 # linear kernel
 K = use_kernel(X_train, X_train)
